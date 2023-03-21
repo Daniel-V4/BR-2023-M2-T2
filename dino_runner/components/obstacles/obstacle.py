@@ -1,7 +1,7 @@
 import pygame
 from pygame.sprite import Sprite
 
-from dino_runner.utils.constants import BIRD, SCREEN_WIDTH
+from dino_runner.utils.constants import SCREEN_WIDTH
 
 
 class Obstacle(Sprite):
@@ -17,12 +17,6 @@ class Obstacle(Sprite):
 
         if self.rect.x < -self.rect.width:
             obstacles.pop()
-
-        if self.image == BIRD:
-            self.type = 0 if self.step_index < 5 else 1
-            self.step_index += 1
-            if self.step_index >= 10:
-                self.step_index = 0
 
     def draw(self, screen):
         screen.blit(self.image[self.type], (self.rect.x, self.rect.y))
