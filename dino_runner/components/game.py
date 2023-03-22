@@ -1,8 +1,9 @@
 import pygame
 
-from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS
+from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, DEFAULT_TYPE
 from dino_runner.components.Dinosaur import Dinosaur
 from dino_runner.components.obstacles.obstacleManager import ObstacleManager
+from dino_runner.components.power_ups.power_up_manager import PowerUpManager
 
 FONT_STYLE = 'freesansbold.ttf'
 
@@ -24,6 +25,7 @@ class Game:
         
         self.player = Dinosaur()
         self.obstacle_manager = ObstacleManager()
+        self.power_up_manager = PowerUpManager()
 
     def execute(self):
         self.running = True
@@ -38,7 +40,9 @@ class Game:
         # Game loop: events - update - draw
         self.playing = True
         self.obstacle_manager.reset_obstacles()
+        self.power_up_manager.reset_power_ups()
         self.score = 0
+        self.game_speed = 20
         while self.playing:
             self.events()
             self.update()
@@ -55,6 +59,7 @@ class Game:
         self.player.update(user_input)
         self.obstacle_manager.update(self)
         self.update_score()
+        self.power_up_manager.update(self.score, self.game_speed, self.player)
 
     def update_score(self):
         self.score += 1
@@ -68,6 +73,8 @@ class Game:
         self.player.draw(self.screen)
         self.obstacle_manager.draw(self.screen)
         self.draw_score()
+        self.draw_power_up_time()
+        self.power_up_manager.draw(self.screen)
         pygame.display.update()
         pygame.display.flip()
 
@@ -82,6 +89,18 @@ class Game:
 
     def draw_score(self):
         self.print_text(f"Score: {self.score}", (0, 0, 0), (1000, 50))
+
+    def draw_power_up_time(self):
+        if self.player.has_power_up:
+            time_to_show = round((self.player.power_up_time - pygame.time.get_ticks()) / 1000, 2)
+            if time_to_show >= 0:
+                self.print_text(
+                    f"{self.player.type.capitalize()} enabled for {time_to_show} seconds",
+                    (0, 0, 0), (500, 40)
+                )
+            else:
+                self.player.has_power_up = False
+                self.player.type = DEFAULT_TYPE    
 
     def handle_events_on_menu(self): 
         for event in pygame.event.get():
@@ -102,20 +121,14 @@ class Game:
             self.screen.blit(ICON, (half_screen_width - 20, half_screen_height - 140))
             self.print_text(f"Your last score was: {self.score}", (0, 0, 0), (half_screen_width, half_screen_height))
             self.print_text(f"You have died {self.death_count} times", (0, 0, 0), (half_screen_width, half_screen_height + 25))
-            ## mostrar mensagem "Press any key to restart"
-            ## mostrar pontuação atingida
-            ## mostrar contador de mortes
-
-            ### Resetar a contagem de pontos e a velocidade quando jogo 'restartado'
-            ### Criar método para remover a repetição de código para texto
-
+            
         pygame.display.update()  # .flip()
 
         self.handle_events_on_menu()
     
-    def print_text(self, text, color, place):
+    def print_text(self, text, color, position):
         font = pygame.font.Font(FONT_STYLE, 22)
         text = font.render(text, True, color)
         text_rect = text.get_rect()
-        text_rect.center = place
+        text_rect.center = position
         self.screen.blit(text, text_rect)

@@ -3,18 +3,16 @@ import random
 
 from dino_runner.components.obstacles.obstacle import Obstacle
 from dino_runner.utils.constants import BIRD
+from dino_runner.utils.functions import Animation_loop
 
 
 class Bird(Obstacle):
 
     def __init__(self):
+        self.animation_loop = Animation_loop()
         super().__init__(BIRD, 0)
-        self.rect.y = 275
+        places = (225, 275, 300)
+        self.rect.y = random.choice(places)
     
     def draw(self, screen):
-        self.type = 0 if self.step_index < 5 else 1
-        self.step_index += 1
-        if self.step_index >= 10:
-            self.step_index = 0
-
-        screen.blit(self.image[self.type], (self.rect.x, self.rect.y))
+        screen.blit(self.image[self.animation_loop()], (self.rect.x, self.rect.y))
