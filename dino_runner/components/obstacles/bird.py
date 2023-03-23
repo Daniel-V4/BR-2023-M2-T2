@@ -11,7 +11,7 @@ class Bird(Obstacle):
     def __init__(self):
         self.animation_loop = Animation_loop()
         super().__init__(BIRD, 0)
-        places = (225, 275, 300)
+        places = (200, 275, 300)
         self.rect.y = random.choice(places)
     
     def draw(self, screen):

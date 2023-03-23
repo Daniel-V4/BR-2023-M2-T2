@@ -34,7 +34,8 @@ class PowerUpManager:
                     self.apply_power_up(player, power_up)
                 elif isinstance(power_up, Roar):
                     player.roar_available = True
-                self.power_ups.remove(power_up)
+                try: self.power_ups.remove(power_up)
+                except: continue
     
     def apply_power_up(self, player, power_up):
         player.has_power_up = True
